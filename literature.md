@@ -42,11 +42,6 @@
 - **Schneider et al. (2016), «Matter power spectrum and the challenge of percent accuracy»**, JCAP. [arXiv:1503.05920](https://arxiv.org/abs/1503.05920). Как сравнивать спектры мощности между кодами (RAMSES, PKDGRAV3, GADGET-3).
 - Millennium: Springel et al. (2005), Nature 435, 629, [astro-ph/0504097](https://arxiv.org/abs/astro-ph/0504097).
 
----
-
-**Минимальный набор для куратора:** Angulo & Hahn 2022, Trac & Pen 2003, УФН Гурбатова и соавторов (2012), Cholla, FastPM и Libeskind 2018. Этих шести статей хватит, чтобы обосновать выбор метода, архитектуру гало и план валидации.
-
-> Arxiv-номера статей без явной ссылки на поиск (MUSIC, 2LPTic, RAMSES, HACC, Millennium, Uhlemann) приведены по памяти, а не из результатов поиска. Перед тем как вставлять их в отчёт, проверьте номера.
 
 ## Источники
 - [arXiv:2112.05165](https://arxiv.org/abs/2112.05165), [Springer LRCA](https://link.springer.com/article/10.1007/s41115-021-00013-z)
