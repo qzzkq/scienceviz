@@ -20,6 +20,12 @@ add_library(scienceviz_lib
 target_include_directories(scienceviz_lib PUBLIC src)
 target_include_directories(scienceviz_lib SYSTEM PUBLIC third_party)
 
+# Ядро симуляции: сетка, газодинамика, конфиг, снимки. От рендера не зависит.
+add_library(svcore
+    src/core/grid.cpp
+)
+target_include_directories(svcore PUBLIC src)
+
 add_executable(scienceviz src/main.cpp)
 target_link_libraries(scienceviz PRIVATE scienceviz_lib)
 
