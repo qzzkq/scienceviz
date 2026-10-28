@@ -1,2 +1,49 @@
+# Сборка
 build/
-frame.png
+build-*/
+out/
+cmake-build-*/
+
+# Мусор CMake, если кто-то собрал прямо в корне
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
+install_manifest.txt
+compile_commands.json
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.pdb
+*.ilk
+
+# Результаты прогона: кадры, дампы кубов, снимки симуляции
+*.png
+*.ppm
+*.f32
+*.npy
+*.vti
+*.raw
+
+# Данные: качаются локально, в репо лежит только data/README.md
+data/*
+!data/README.md
+
+# Редакторы и IDE
+.vscode/
+.idea/
+*.swp
+*~
+.cache/
+.clangd/
+
+# Хлам ОС
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
