@@ -1,2 +1,5 @@
 build/
 frame.png
+
+__pycache__/
+prototype/output/
