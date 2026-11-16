@@ -1,3 +1,4 @@
+#include "grid_volume.hpp"
 #include "npy.hpp"
 #include "render.hpp"
 #include "synthetic.hpp"
@@ -20,7 +21,8 @@ void usage() {
         << "scienceviz --size 64 --out frame.png\n"
         << "scienceviz --size 64 --dump cube.f32\n"
         << "scienceviz --bin cube.f32 --out frame.png\n"
-        << "scienceviz --npy cube.npy --out frame.png\n";
+        << "scienceviz --npy cube.npy --out frame.png\n"
+        << "scienceviz --grid-npy cube.npy --out frame.png\n";
 }
 
 bool next_value(int& index, int argc, char** argv, std::string& value) {
@@ -46,6 +48,7 @@ int main(int argc, char** argv) {
     std::string dump_path;
     std::string bin_path;
     std::string npy_path;
+    std::string grid_npy_path;
 
     for (int i = 1; i < argc; ++i) {
         const std::string arg = argv[i];
@@ -77,6 +80,10 @@ int main(int argc, char** argv) {
             if (!next_value(i, argc, argv, npy_path)) {
                 return 1;
             }
+        } else if (arg == "--grid-npy") {
+            if (!next_value(i, argc, argv, grid_npy_path)) {
+                return 1;
+            }
         } else {
             usage();
             return 1;
@@ -87,11 +94,12 @@ int main(int argc, char** argv) {
         usage();
         return 1;
     }
-    if (!bin_path.empty() && !npy_path.empty()) {
-        std::cerr << "нужен один источник: --bin или --npy\n";
+    if (static_cast<int>(!bin_path.empty()) + static_cast<int>(!npy_path.empty())
+        + static_cast<int>(!grid_npy_path.empty()) > 1) {
+        std::cerr << "нужен один источник: --bin, --npy или --grid-npy\n";
         return 1;
     }
-    if (size_set && (!bin_path.empty() || !npy_path.empty())) {
+    if (size_set && (!bin_path.empty() || !npy_path.empty() || !grid_npy_path.empty())) {
         std::cerr << "размер берётся из файла, --size здесь не нужен\n";
         return 1;
     }
@@ -102,10 +110,18 @@ int main(int argc, char** argv) {
 
     Volume volume;
     std::string error;
-    if (!npy_path.empty()) {
-        if (!load_npy(npy_path, volume, error)) {
+    if (!npy_path.empty() || !grid_npy_path.empty()) {
+        if (!load_npy(grid_npy_path.empty() ? npy_path : grid_npy_path, volume, error)) {
             std::cerr << error << "\n";
             return 1;
+        }
+        if (!grid_npy_path.empty()) {
+            const int n = volume.size();
+            svcore::Grid3D grid(n, n, n, 1);
+            density_to_grid(volume, grid);
+            std::cout << "средняя плотность сетки: "
+                      << grid.sum_own(svcore::Field::Rho) / grid.own_count() << "\n";
+            volume = density_to_volume(grid);
         }
     } else if (!bin_path.empty()) {
         if (!Volume::load_f32(bin_path, volume, error)) {

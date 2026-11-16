@@ -15,6 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install NumPy for integration test
+        run: python3 -m pip install numpy
+
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
