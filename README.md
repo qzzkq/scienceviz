@@ -35,25 +35,43 @@ python3 prototype/render_snapshot.py --snapshot prototype/output/web3d_64.npz --
 
 ## Пролёт камеры и переход между снимками
 
-Для видео нужны Python с NumPy и FFmpeg с кодировщиком `libx264`. Из корня репозитория:
+Для видео нужны Python с NumPy и FFmpeg с кодировщиком `libx264`. Перед запуском
+пересоберите рендер из корня репозитория и проверьте, что FFmpeg доступен:
 
 ```bash
-python prototype/render_video.py --npy data/camels_mgas_0.npy --camera examples/orbit.json --out build/camels.mp4
-python prototype/render_video.py --snapshot prototype/output/web3d_64.npz --camera examples/orbit.json --out build/evolution.mp4
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+ffmpeg -version
 ```
+
+Если FFmpeg находится вне `PATH`, добавьте к команде рендера `--ffmpeg` с
+полным путём к программе, например `--ffmpeg "C:/tools/ffmpeg/bin/ffmpeg.exe"`.
+Для сборки Visual Studio укажите `--renderer build/Release/scienceviz.exe`.
 
 В JSON-файле `eyes` задаёт точки сплайна Катмулла–Рома, `target` — общую точку взгляда.
 Координаты куба идут от 0 до 1. Для одного PNG можно передать `--eye x,y,z`
 и `--target x,y,z` напрямую в `scienceviz`.
 Для архива плотности линейно смешиваются между соседними снимками с равномерным шагом по масштабному фактору.
 `--matter` выбирает поле, `--frames` и `--fps` — число кадров и частоту.
-Имя программы можно задать через `--renderer`, путь к FFmpeg — через `--ffmpeg`.
 
-Для финального видео используйте `examples/final-flythrough.json`. Камера
-показывает куб общим планом, плавно опускается и приближается, затем отходит.
-При 240 кадрах и 24 fps пролёт занимает 10 секунд.
+Для быстрой проверки создайте снимки 16³ и соберите короткий ролик. Для
+расчёта снимков также нужны SciPy и Matplotlib. Архивы снимков создаются
+локально и не входят в репозиторий.
 
 ```bash
+python prototype/web3d.py run 16 25
+python prototype/render_video.py --snapshot prototype/output/web3d_16.npz --camera examples/final-flythrough.json --frames 24 --fps 24 --out build/flythrough-preview.mp4
+```
+
+Если у вас уже есть куб CAMELS, его можно передать напрямую через `--npy`.
+[Подготовка куба CAMELS](data/README.md).
+
+Траектория `examples/final-flythrough.json` начинается с общего плана, затем
+камера приближается и отходит. При 240 кадрах и 24 fps пролёт занимает 10 секунд.
+Подставьте путь к имеющемуся архиву 64³ или создайте его первым вызовом.
+
+```bash
+python prototype/web3d.py run 64 64
 python prototype/render_video.py --snapshot prototype/output/web3d_64.npz --camera examples/final-flythrough.json --frames 240 --fps 24 --out build/final-flythrough.mp4
 ```
 
