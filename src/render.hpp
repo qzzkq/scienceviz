@@ -23,9 +23,14 @@ struct Image {
     std::vector<Color> pixels;
 };
 
+struct Camera {
+    Vec3 eye{1.15f, 1.28f, -0.22f};
+    Vec3 target{0.50f, 0.50f, 0.50f};
+};
+
 // direction — единичный вектор. Луч, не попавший в куб, даёт чёрный цвет.
 [[nodiscard]] Color march(const Volume& volume, Vec3 origin, Vec3 direction);
 
-[[nodiscard]] Image render_image(const Volume& volume, int width, int height);
+[[nodiscard]] Image render_image(const Volume& volume, int width, int height, Camera camera = {});
 
 [[nodiscard]] bool write_png(const Image& image, const std::string& path, std::string& error);

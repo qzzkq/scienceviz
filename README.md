@@ -33,6 +33,46 @@ python3 prototype/render_snapshot.py --snapshot prototype/output/web3d_64.npz --
 
 `ctest --test-dir build --output-on-failure` проверяет также передачу снимка через сетку и рендер, если при конфигурации CMake найден Python с NumPy.
 
+## Пролёт камеры и переход между снимками
+
+Для видео нужны Python с NumPy и FFmpeg с кодировщиком `libx264`. Из корня репозитория:
+
+```bash
+python prototype/render_video.py --npy data/camels_mgas_0.npy --camera examples/orbit.json --out build/camels.mp4
+python prototype/render_video.py --snapshot prototype/output/web3d_64.npz --camera examples/orbit.json --out build/evolution.mp4
+```
+
+В JSON-файле `eyes` задаёт точки сплайна Катмулла–Рома, `target` — общую точку взгляда.
+Координаты куба идут от 0 до 1. Для одного PNG можно передать `--eye x,y,z`
+и `--target x,y,z` напрямую в `scienceviz`.
+Для архива плотности линейно смешиваются между соседними снимками с равномерным шагом по масштабному фактору.
+`--matter` выбирает поле, `--frames` и `--fps` — число кадров и частоту.
+Имя программы можно задать через `--renderer`, путь к FFmpeg — через `--ffmpeg`.
+
+Для финального видео используйте `examples/final-flythrough.json`. Камера
+показывает куб общим планом, плавно опускается и приближается, затем отходит.
+При 240 кадрах и 24 fps пролёт занимает 10 секунд.
+
+```bash
+python prototype/render_video.py --snapshot prototype/output/web3d_64.npz --camera examples/final-flythrough.json --frames 240 --fps 24 --out build/final-flythrough.mp4
+```
+
+Если CMake находит OpenMP, рендер параллелит строки кадра. Число потоков можно
+задать переменной окружения `OMP_NUM_THREADS`. Для контрольного замера используйте
+одинаковый куб, камеру и разрешение с одним и несколькими потоками.
+
+## Графики замеров MPI
+
+```bash
+python prototype/plot_timings.py build/mpi-timings.csv --out build/mpi-timings.png
+```
+
+Скрипту нужен Matplotlib и CSV с колонками `processes,phase,elapsed_ms`.
+Одна строка — время одной фазы в миллисекундах. Для повторов используется медиана.
+Фаза `total` содержит измеренное полное время, включая запуск на одном процессе.
+Ускорение считается как `T(1) / T(p)` по `total`. Времена отдельных фаз
+могут относиться к разным рангам MPI, поэтому на графике они показаны отдельными линиями.
+
 ## src/core
 
 Ядро симулятора: библиотека `svcore`, от рендера не зависит. Пока в ней сетка

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 #include <vector>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -9,8 +10,6 @@
 
 namespace {
 
-constexpr Vec3 kEye{1.15f, 1.28f, -0.22f};
-constexpr Vec3 kTarget{0.50f, 0.50f, 0.50f};
 constexpr float kFovDeg = 34.f;
 constexpr float kInset = 0.18f;
 constexpr float kDensityFloor = 0.9f;
@@ -255,28 +254,38 @@ Color march(const Volume& volume, Vec3 origin, Vec3 direction) {
     return out;
 }
 
-Image render_image(const Volume& volume, int width, int height) {
-    Image image;
-    image.width = width;
-    image.height = height;
-    image.pixels.resize(static_cast<std::size_t>(width) * static_cast<std::size_t>(height));
+Image render_image(const Volume& volume, int width, int height, Camera camera) {
     if (width < 1 || height < 1) {
-        return image;
+        return {width, height, {}};
     }
 
-    const Vec3 forward = normalize(sub(kTarget, kEye));
-    const Vec3 right = normalize(cross(forward, Vec3{0.f, 1.f, 0.f}));
+    const Vec3 view = sub(camera.target, camera.eye);
+    const float horizontal = view.x * view.x + view.z * view.z;
+    if (!std::isfinite(dot(view, view)) || !(horizontal > 0.f)) {
+        throw std::invalid_argument("камера должна иметь конечное, ненулевое и невертикальное направление");
+    }
+    const Vec3 forward = normalize(view);
+    const Vec3 sideways = cross(forward, Vec3{0.f, 1.f, 0.f});
+    if (!(dot(sideways, sideways) > 0.f)) {
+        throw std::invalid_argument("направление камеры слишком близко к вертикали");
+    }
+    const Vec3 right = normalize(sideways);
     const Vec3 up = cross(right, forward);
     const float half_h = std::tan(kFovDeg * 3.14159265f / 360.f);
     const float half_w = half_h * (static_cast<float>(width) / static_cast<float>(height));
 
+    Image image{width, height, {}};
+    image.pixels.resize(static_cast<std::size_t>(width) * static_cast<std::size_t>(height));
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static, 4) if (height >= 128)
+#endif
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             const float nx = ((static_cast<float>(x) + 0.5f) / static_cast<float>(width)) * 2.f - 1.f;
             const float ny = 1.f - ((static_cast<float>(y) + 0.5f) / static_cast<float>(height)) * 2.f;
             const Vec3 direction = normalize(add(forward, add(scale(right, nx * half_w), scale(up, ny * half_h))));
             image.pixels[static_cast<std::size_t>(y) * static_cast<std::size_t>(width) + static_cast<std::size_t>(x)] =
-                march(volume, kEye, direction);
+                march(volume, camera.eye, direction);
         }
     }
     return image;

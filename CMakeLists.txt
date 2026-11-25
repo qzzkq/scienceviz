@@ -19,6 +19,10 @@ add_library(scienceviz_lib
 )
 target_include_directories(scienceviz_lib PUBLIC src)
 target_include_directories(scienceviz_lib SYSTEM PUBLIC third_party)
+find_package(OpenMP QUIET COMPONENTS CXX)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(scienceviz_lib PRIVATE OpenMP::OpenMP_CXX)
+endif()
 
 # Ядро симуляции: сетка, газодинамика, конфиг, снимки. От рендера не зависит.
 add_library(svcore
@@ -53,5 +57,7 @@ if(Python3_Interpreter_FOUND)
     if(NUMPY_RESULT EQUAL 0)
         add_test(NAME snapshot_pipeline
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/test_pipeline.py $<TARGET_FILE:scienceviz>)
+        add_test(NAME video_interpolation
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/test_video_interpolation.py)
     endif()
 endif()

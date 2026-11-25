@@ -3,7 +3,9 @@
 #include "render.hpp"
 #include "synthetic.hpp"
 
+#include <cmath>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -22,7 +24,8 @@ void usage() {
         << "scienceviz --size 64 --dump cube.f32\n"
         << "scienceviz --bin cube.f32 --out frame.png\n"
         << "scienceviz --npy cube.npy --out frame.png\n"
-        << "scienceviz --grid-npy cube.npy --out frame.png\n";
+        << "scienceviz --grid-npy cube.npy --out frame.png\n"
+        << "камера: --eye x,y,z --target x,y,z (куб от 0 до 1 по каждой оси)\n";
 }
 
 bool next_value(int& index, int argc, char** argv, std::string& value) {
@@ -32,6 +35,17 @@ bool next_value(int& index, int argc, char** argv, std::string& value) {
     }
     value = argv[++index];
     return true;
+}
+
+bool parse_point(const std::string& value, Vec3& point) {
+    std::istringstream input(value);
+    char first = 0;
+    char second = 0;
+    if (!(input >> point.x >> first >> point.y >> second >> point.z) || first != ',' || second != ',') {
+        return false;
+    }
+    input >> std::ws;
+    return input.eof() && std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z);
 }
 
 }  // namespace
@@ -49,6 +63,7 @@ int main(int argc, char** argv) {
     std::string bin_path;
     std::string npy_path;
     std::string grid_npy_path;
+    Camera camera;
 
     for (int i = 1; i < argc; ++i) {
         const std::string arg = argv[i];
@@ -82,6 +97,15 @@ int main(int argc, char** argv) {
             }
         } else if (arg == "--grid-npy") {
             if (!next_value(i, argc, argv, grid_npy_path)) {
+                return 1;
+            }
+        } else if (arg == "--eye" || arg == "--target") {
+            if (!next_value(i, argc, argv, value)) {
+                return 1;
+            }
+            Vec3& point = arg == "--eye" ? camera.eye : camera.target;
+            if (!parse_point(value, point)) {
+                std::cerr << arg << " требует три числа x,y,z\n";
                 return 1;
             }
         } else {
@@ -140,9 +164,14 @@ int main(int argc, char** argv) {
     if (!out_path.empty()) {
         constexpr int kWidth = 1280;
         constexpr int kHeight = 720;
-        const Image image = render_image(volume, kWidth, kHeight);
-        if (!write_png(image, out_path, error)) {
-            std::cerr << error << "\n";
+        try {
+            const Image image = render_image(volume, kWidth, kHeight, camera);
+            if (!write_png(image, out_path, error)) {
+                std::cerr << error << "\n";
+                return 1;
+            }
+        } catch (const std::invalid_argument& exc) {
+            std::cerr << exc.what() << "\n";
             return 1;
         }
         std::cout << out_path << " " << kWidth << "x" << kHeight << ", куб " << volume.size() << "\n";
