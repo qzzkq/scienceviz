@@ -1,5 +1,63 @@
 # scienceviz
 
+## Что можно запустить сейчас
+
+Сборка и проверки C++ из корня репозитория:
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+ctest --test-dir build --output-on-failure
+./build/scienceviz_sim1d examples/sod.cfg
+./build/scienceviz --size 64 --out build/synthetic.png
+```
+
+Ожидаемые результаты: тесты проходят, 1D-расчёт пишет `examples/sod.csv` и
+`examples/sod.chk`, рендер пишет `build/synthetic.png` размером 1280×720.
+Для Python-прототипа нужны отдельные библиотеки:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-prototype.txt
+.venv/bin/python prototype/test_prototype.py
+.venv/bin/python prototype/render_snapshot.py --size 16 --out build/prototype-frame.png
+```
+
+На Windows используйте `.venv\Scripts\python.exe` и `build\Debug\scienceviz.exe`
+при сборке Visual Studio. Для короткого видео дополнительно нужен FFmpeg с
+кодировщиком `libx264`; команды приведены ниже.
+
+**Текущая граница:** C++ считает 1D-газовую ударную трубу, а космологический
+3D-расчёт работает в Python. Рендер принимает его снимки через Python-адаптер.
+Единого C++-расчёта 3D с гравитацией, MPI и GPU пока нет. Файлы 1D-расчёта —
+CSV и контрольная точка; формат будущих распределённых 3D-снимков ещё не
+реализован.
+
+## Газ в 1D
+
+C++-расчёт читает конфигурацию в формате `ключ=значение`. Из корня репозитория:
+
+```bash
+cmake -S . -B build
+cmake --build build
+./build/scienceviz_sim1d examples/sod.cfg
+ctest --test-dir build --output-on-failure
+```
+
+Команда создаёт `examples/sod.csv` (состояние ячеек), `examples/sod.chk`
+(контрольную точку) и промежуточные CSV через каждые 50 шагов. Пример считает
+ударную трубу Сода: поток HLL, реконструкция MC, шаг SSP-RK2. `order=1`
+включает первый порядок. В `gas` допустимы `adiabatic`, `isothermal`, `dust`;
+в `boundary` — `outflow`, `periodic`; в `initial` — `sod`, `iso`, `sine`.
+Для продолжения укажите `restart=examples/sod.chk` и увеличьте `end_time`.
+Ошибки конфигурации и несовместимые контрольные точки дают ненулевой код выхода.
+
+CSV содержит центр ячейки, плотность, импульс, полную энергию и давление.
+Контрольная точка хранит консервативные величины, время, номер шага и параметры
+схемы. В этом 1D-расчёте пока нет расширения Вселенной и гравитации. Тест
+`sim1d_reference` сверяет газ с `prototype/hydro1d.py` на одинаковых начальных
+данных.
+
 Офлайн-рендер куба плотности. Синтетическое поле, проход лучей, кадр PNG.
 
 ```bash
@@ -29,7 +87,9 @@ python3 prototype/render_snapshot.py --snapshot prototype/output/web3d_64.npz --
 
 `--matter` выбирает `adiabatic`, `isothermal`, `dust` или `dm`; `--a` — момент снимка: `0.1`, `0.25`, `0.5` или `1.0`. `--dump prototype/output/cube.f32` дополнительно сохраняет куб для рендера. В Python плотность индексируется как `[x,y,z]`, при передаче в C++ оси переставляются так, чтобы x был самым быстрым индексом. Для передачи используется float32.
 
-Расчёт по-прежнему выполняется в Python: C++-сетка пока не реализует эволюцию газа, гравитацию или MPI. Передаточная функция рендера пока настроена на синтетические данные.
+Для этого пути 3D-расчёт выполняется в Python. C++-ядро уже умеет считать газ
+в 1D; 3D-эволюция, гравитация и MPI в нём пока не реализованы. Передаточная
+функция рендера пока настроена на синтетические данные.
 
 `ctest --test-dir build --output-on-failure` проверяет также передачу снимка через сетку и рендер, если при конфигурации CMake найден Python с NumPy.
 

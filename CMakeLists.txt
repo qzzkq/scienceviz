@@ -27,6 +27,7 @@ endif()
 # Ядро симуляции: сетка, газодинамика, конфиг, снимки. От рендера не зависит.
 add_library(svcore
     src/core/grid.cpp
+    src/core/sim1d.cpp
 )
 target_include_directories(svcore PUBLIC src)
 
@@ -35,6 +36,9 @@ target_link_libraries(grid_volume PUBLIC scienceviz_lib svcore)
 
 add_executable(scienceviz src/main.cpp)
 target_link_libraries(scienceviz PRIVATE grid_volume)
+
+add_executable(scienceviz_sim1d src/sim1d_main.cpp)
+target_link_libraries(scienceviz_sim1d PRIVATE svcore)
 
 add_executable(scienceviz_tests tests/test_all.cpp)
 target_link_libraries(scienceviz_tests PRIVATE scienceviz_lib)
@@ -59,5 +63,7 @@ if(Python3_Interpreter_FOUND)
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/test_pipeline.py $<TARGET_FILE:scienceviz>)
         add_test(NAME video_interpolation
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/test_video_interpolation.py)
+        add_test(NAME sim1d_reference
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/test_sim1d.py $<TARGET_FILE:scienceviz_sim1d>)
     endif()
 endif()

@@ -1,6 +1,7 @@
 # Сборка
 build/
 build-*/
+.venv/
 out/
 cmake-build-*/
 
@@ -52,3 +53,7 @@ desktop.ini
 __pycache__/
 prototype/output/
 !prototype/figures/*.png
+
+# Результаты примера 1D
+examples/*.csv
+examples/*.chk
