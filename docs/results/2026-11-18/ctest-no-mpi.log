@@ -1,0 +1,35 @@
+Start testing: Nov 18 20:16 +07
+----------------------------------------------------------
+1/2 Testing: scienceviz_tests
+1/2 Test: scienceviz_tests
+Command: "./build/scienceviz_tests"
+Directory: ./build
+"scienceviz_tests" start time: Nov 18 20:16 +07
+Output:
+----------------------------------------------------------
+ok
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"scienceviz_tests" end time: Nov 18 20:16 +07
+"scienceviz_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/2 Testing: svcore_tests
+2/2 Test: svcore_tests
+Command: "./build/svcore_tests"
+Directory: ./build
+"svcore_tests" start time: Nov 18 20:16 +07
+Output:
+----------------------------------------------------------
+svcore tests ok
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"svcore_tests" end time: Nov 18 20:16 +07
+"svcore_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Nov 18 20:16 +07

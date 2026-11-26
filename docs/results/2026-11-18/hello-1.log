@@ -1,0 +1,6 @@
+COMMAND: ['./build-mpi-env/bin/mpiexec', '-n', '1', './build-mpi-release/mpi_hello']
+STDOUT:
+rank=0/1 host=KRUTOI
+unique_hosts=1 required=1 result=PASS
+
+STDERR:

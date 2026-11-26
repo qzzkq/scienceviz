@@ -50,6 +50,38 @@ add_test(NAME scienceviz_tests COMMAND scienceviz_tests)
 add_test(NAME svcore_tests COMMAND svcore_tests)
 add_test(NAME grid_volume_tests COMMAND grid_volume_tests)
 
+option(SV_ENABLE_MPI "Build distributed grid tools and MPI tests" OFF)
+if(SV_ENABLE_MPI)
+    find_package(MPI REQUIRED COMPONENTS CXX)
+    add_library(svmpi src/mpi/halo.cpp)
+    target_include_directories(svmpi PUBLIC src)
+    target_link_libraries(svmpi PUBLIC svcore MPI::MPI_CXX)
+
+    add_executable(svmpi_tests tests/test_mpi.cpp)
+    target_link_libraries(svmpi_tests PRIVATE svmpi)
+    add_executable(mpi_hello examples/mpi_hello.cpp)
+    target_link_libraries(mpi_hello PRIVATE MPI::MPI_CXX)
+    add_executable(mpi_pingpong examples/mpi_pingpong.cpp)
+    target_link_libraries(mpi_pingpong PRIVATE MPI::MPI_CXX)
+    add_executable(mpi_diffusion examples/mpi_diffusion.cpp)
+    target_link_libraries(mpi_diffusion PRIVATE svmpi)
+
+    foreach(ranks 1 2 3)
+        add_test(NAME svmpi_${ranks}
+            COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${ranks}
+                ${MPIEXEC_PREFLAGS} $<TARGET_FILE:svmpi_tests> ${MPIEXEC_POSTFLAGS})
+        set_tests_properties(svmpi_${ranks} PROPERTIES TIMEOUT 45 PROCESSORS ${ranks})
+        foreach(halo 1 2)
+            add_test(NAME diffusion_${ranks}_halo${halo}
+                COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${ranks}
+                    ${MPIEXEC_PREFLAGS} $<TARGET_FILE:mpi_diffusion> ${MPIEXEC_POSTFLAGS}
+                    --nx 17 --ny 13 --nz 19 --halo ${halo} --steps 20)
+            set_tests_properties(diffusion_${ranks}_halo${halo}
+                PROPERTIES TIMEOUT 60 PROCESSORS ${ranks})
+        endforeach()
+    endforeach()
+endif()
+
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
     execute_process(COMMAND ${Python3_EXECUTABLE} -c "import numpy"

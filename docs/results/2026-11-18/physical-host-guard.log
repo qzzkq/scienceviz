@@ -1,0 +1,6 @@
+COMMAND: ['./build-mpi-env/bin/mpiexec', '-n', '2', './build-mpi/mpi_hello', '--min-hosts', '2']
+rank=0/2 host=KRUTOI
+rank=1/2 host=KRUTOI
+unique_hosts=1 required=2 result=FAIL
+
+exit=1

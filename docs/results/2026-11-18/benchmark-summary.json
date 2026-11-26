@@ -1,0 +1,64 @@
+{
+  "recorded_utc": "2026-11-18T13:15:46.681339+00:00",
+  "host": "KRUTOI",
+  "scope": "one physical host; no affinity configured by script",
+  "size": 64,
+  "steps": 50,
+  "repeats": 5,
+  "ranks": [
+    {
+      "ranks": 1,
+      "compute_s_max": {
+        "median": 0.301516206,
+        "min": 0.300252689,
+        "max": 0.338591471
+      },
+      "halo_s_max": {
+        "median": 0.00166388699995,
+        "min": 0.00153486100055,
+        "max": 0.001738026
+      },
+      "loop_s_max": {
+        "median": 0.303223337,
+        "min": 0.301800341,
+        "max": 0.340348748
+      }
+    },
+    {
+      "ranks": 2,
+      "compute_s_max": {
+        "median": 0.152199103,
+        "min": 0.14964888,
+        "max": 0.159373834
+      },
+      "halo_s_max": {
+        "median": 0.00534546999916,
+        "min": 0.00347094200049,
+        "max": 0.0106016439996
+      },
+      "loop_s_max": {
+        "median": 0.155503915,
+        "min": 0.152973468,
+        "max": 0.161709816
+      }
+    },
+    {
+      "ranks": 3,
+      "compute_s_max": {
+        "median": 0.106541409,
+        "min": 0.101221659001,
+        "max": 0.111302395
+      },
+      "halo_s_max": {
+        "median": 0.0103074530002,
+        "min": 0.00548420600035,
+        "max": 0.0166101759996
+      },
+      "loop_s_max": {
+        "median": 0.111009328,
+        "min": 0.103102634,
+        "max": 0.114007091
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+COMMAND: ['./build-mpi-env/bin/mpiexec', '-n', '2', './build-mpi-release/mpi_pingpong']
+STDOUT:
+# rank0=KRUTOI rank1=KRUTOI
+# one_way_us = round_trip / 2; throughput = payload / one_way
+bytes,iterations,one_way_us,payload_MB_s
+1,1000,2.5827735,0.38718068
+8,1000,2.5348145,3.15604949
+64,1000,2.62427,24.3877345
+512,1000,2.555003,200.391154
+4096,1000,3.789675,1080.83147
+32768,244,17.0060738,1926.84099
+262144,50,52.52054,4991.26627
+1048576,50,169.1089,6200.59618
+
+STDERR:
