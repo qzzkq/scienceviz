@@ -81,8 +81,10 @@ python prototype/render_video.py --snapshot prototype/output/web3d_64.npz --came
 
 ## Графики замеров MPI
 
+Сборка MPI, проверка обмена гало и получение CSV через `scripts/benchmark_diffusion.py` описаны в [инструкции по диффузии](docs/mpi.md).
+
 ```bash
-python prototype/plot_timings.py build/mpi-timings.csv --out build/mpi-timings.png
+python prototype/plot_timings.py out/mpi-benchmark/timings-phases.csv --out build/mpi-timings.png
 ```
 
 Скрипту нужен Matplotlib и CSV с колонками `processes,phase,elapsed_ms`.

@@ -1,0 +1,19 @@
+{
+  "node": "bogdan-laptop",
+  "recorded_utc": "2026-11-18T13:17:03.576071+00:00",
+  "os": "Ubuntu 25.10",
+  "architecture": "x86_64",
+  "cpu_model": "13th Gen Intel(R) Core(TM) i5-13420H",
+  "logical_cpus": 12,
+  "memory_gib": 14.81,
+  "gpu": [
+    "0000:00:02.0 VGA compatible controller: Intel Corporation Raptor Lake-P [UHD Graphics] (rev 04)"
+  ],
+  "network_adapters": [
+    "0000:00:14.3 Network controller: Intel Corporation Raptor Lake PCH CNVi WiFi (rev 01)"
+  ],
+  "mpi_launcher": "HYDRA build details:\n    Version:                                 5.0.2\n    Release Date:                            Fri Sep 25 20:45:26 UTC 2026\n    CC:                              cc\n    Configure options:                       --with-device=ch4:ucx,ofi --with-pm=hydra:gforker\n    Process Manager:                         pmi\n    Launchers available:                     ssh rsh fork slurm ll lsf sge manual persist\n    Topology libraries available:            hwloc\n    Resource management kernels available:   user slurm ll lsf sge pbs cobalt\n    Demux engines available:                 poll select",
+  "compiler": "c++ (Ubuntu 15.2.0-4ubuntu4) 15.2.0",
+  "cmake": "cmake version 3.31.6",
+  "wired_link_and_ssh": "must be checked separately"
+}

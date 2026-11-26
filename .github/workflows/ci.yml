@@ -30,3 +30,33 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
+
+  mpi:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install MPI
+        run: sudo apt-get update && sudo apt-get install -y mpich libmpich-dev
+      - name: Configure
+        run: >-
+          cmake -S . -B build-mpi -DSV_ENABLE_MPI=ON
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DMPI_CXX_COMPILER=/usr/bin/mpicxx.mpich
+          -DMPIEXEC_EXECUTABLE=/usr/bin/mpiexec.mpich
+      - name: Build
+        run: cmake --build build-mpi --parallel 2
+      - name: Test
+        run: ctest --test-dir build-mpi --output-on-failure
+      - name: Compare complete fields
+        run: python3 scripts/verify_mpi.py --mpiexec /usr/bin/mpiexec.mpich
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mpi-${{ matrix.build_type }}
+          path: |
+            out/mpi-validation
+            build-mpi/Testing/Temporary/LastTest.log

@@ -110,15 +110,15 @@ double Grid3D::sum_own(Field field) const {
     return sum;
 }
 
-void Grid3D::fill_halo_periodic(Field field) {
+void Grid3D::fill_halo_periodic_xy(Field field) {
     if (empty()) {
         return;
     }
     float* cells = data(field);
     const int g = halo_;
 
-    // Три прохода по всё более широкому диапазону: так рёбра и углы получаются
-    // сами, без отдельного кода для них.
+    // Два прохода по всё более широкому диапазону: углы x/y получаются
+    // без отдельного кода. Гало z заполняет вызывающая функция или MPI.
 
     // 1) По x, только по своим y и z.
     for (int z = 0; z < nz_; ++z) {
@@ -139,6 +139,15 @@ void Grid3D::fill_halo_periodic(Field field) {
             }
         }
     }
+}
+
+void Grid3D::fill_halo_periodic(Field field) {
+    if (empty()) {
+        return;
+    }
+    fill_halo_periodic_xy(field);
+    float* cells = data(field);
+    const int g = halo_;
 
     // 3) По z: целыми плоскостями, они лежат одним куском.
     const std::size_t plane = plane_count();
